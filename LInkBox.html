@@ -1,0 +1,2392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+  <title>LINKBOX — Personal Link Archive • Vol. 01 / MMXXVI</title>
+
+  <!-- Google Fonts: Anton, Space Mono & Hind Siliguri (for Bangla Details) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hind+Siliguri:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & NEO-BRUTALIST THEME VARIABLES
+       ========================================================================== */
+    :root {
+      --bg-paper: #F7F4EB;
+      --bg-card: #FFFDF8;
+      --bg-input: #FFFFFF;
+      --grid-line: rgba(17, 17, 17, 0.07);
+      --ink: #111111;
+      --ink-muted: #55524A;
+      --pink: #FF2A85;
+      --blue: #1D4ED8;
+      --yellow: #FFE600;
+      --orange-red: #FF3B1D;
+      --purple: #7C3AED;
+      --cyan: #00B8D4;
+      --purple-dot: rgba(124, 58, 237, 0.22);
+      --green: #00C853;
+      --border-thick: 3px solid var(--ink);
+      --border-heavy: 4px solid var(--ink);
+      --shadow-sm: 4px 4px 0px var(--ink);
+      --shadow-md: 6px 6px 0px var(--ink);
+      --shadow-lg: 8px 8px 0px var(--ink);
+      --watermark-color: rgba(17, 17, 17, 0.045);
+    }
+
+    body.night-mode {
+      --bg-paper: #121318;
+      --bg-card: #1C1E26;
+      --bg-input: #14161D;
+      --grid-line: rgba(255, 255, 255, 0.06);
+      --ink: #F5F2EB;
+      --ink-muted: #A6A29A;
+      --pink: #FF3892;
+      --blue: #3B82F6;
+      --yellow: #FACC15;
+      --orange-red: #FF5238;
+      --purple: #A78BFA;
+      --cyan: #22D3EE;
+      --purple-dot: rgba(167, 139, 250, 0.25);
+      --watermark-color: rgba(255, 255, 255, 0.04);
+    }
+
+    /* ==========================================================================
+       2. RESET, ANTI-COPY & BASE PAPER TEXTURE
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    input, textarea, select {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Space Mono', 'Hind Siliguri', monospace;
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 28px 28px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .font-bangla {
+      font-family: 'Hind Siliguri', 'Space Mono', sans-serif;
+    }
+
+    /* Decorative Background Elements */
+    .bg-archive-watermark {
+      position: fixed;
+      top: 42px;
+      right: -20px;
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(6rem, 18vw, 15rem);
+      line-height: 0.85;
+      letter-spacing: 0.04em;
+      color: var(--watermark-color);
+      pointer-events: none;
+      z-index: 0;
+      transform: rotate(-3deg);
+    }
+
+    .bg-halftone {
+      position: fixed;
+      bottom: -30px;
+      right: -30px;
+      width: 340px;
+      height: 340px;
+      background-image: radial-gradient(var(--purple-dot) 3px, transparent 3px);
+      background-size: 14px 14px;
+      mask-image: radial-gradient(circle at bottom right, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 75%);
+      -webkit-mask-image: radial-gradient(circle at bottom right, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 75%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Four Corner Registration Crosshair Marks */
+    .crosshair {
+      position: fixed;
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+      z-index: 40;
+      opacity: 0.65;
+    }
+    .crosshair::before, .crosshair::after {
+      content: '';
+      position: absolute;
+      background-color: var(--ink);
+    }
+    .crosshair::before {
+      top: 11px; left: 0; width: 24px; height: 2px;
+    }
+    .crosshair::after {
+      left: 11px; top: 0; width: 2px; height: 24px;
+    }
+    .crosshair.tl { top: 48px; left: 14px; }
+    .crosshair.tr { top: 48px; right: 14px; }
+    .crosshair.bl { bottom: 14px; left: 14px; }
+    .crosshair.br { bottom: 14px; right: 14px; }
+
+    /* ==========================================================================
+       3. MARQUEE BARS
+       ========================================================================== */
+    .marquee-bar {
+      width: 100%;
+      overflow: hidden;
+      border-bottom: var(--border-thick);
+      white-space: nowrap;
+      position: relative;
+      z-index: 20;
+      padding: 7px 0;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .marquee-top {
+      background-color: var(--pink);
+      color: #FFFFFF;
+    }
+
+    .marquee-mid {
+      background-color: #111111;
+      color: var(--yellow);
+      border-top: var(--border-thick);
+      margin: 24px 0;
+    }
+    body.night-mode .marquee-mid {
+      background-color: #08090C;
+      border-color: var(--ink);
+    }
+
+    .marquee-track {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marqueeScroll 28s linear infinite;
+    }
+
+    .marquee-mid .marquee-track {
+      animation: marqueeScrollReverse 26s linear infinite;
+    }
+
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @keyframes marqueeScrollReverse {
+      0% { transform: translateX(-50%); }
+      100% { transform: translateX(0); }
+    }
+
+    /* ==========================================================================
+       4. MAIN CONTAINER & HERO SECTION
+       ========================================================================== */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 12px;
+    }
+
+    .hero-left {
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 30px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .vol-label {
+      display: inline-block;
+      align-self: flex-start;
+      background: var(--yellow);
+      color: #111111;
+      border: 2px solid var(--ink);
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      box-shadow: 3px 3px 0px var(--ink);
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(4.2rem, 9vw, 7.2rem);
+      line-height: 0.92;
+      color: var(--blue);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      text-shadow:
+        4px 4px 0px var(--pink),
+        8px 8px 0px var(--ink);
+      margin: 4px 0 18px;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: var(--ink);
+      border-left: 5px solid var(--pink);
+      padding-left: 14px;
+      font-weight: 700;
+      max-width: 540px;
+    }
+
+    /* Hero Right Controls & Stamp */
+    .hero-right {
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      box-shadow: var(--shadow-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      gap: 20px;
+    }
+
+    .top-utility-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .neo-btn {
+      font-family: 'Space Mono', 'Hind Siliguri', monospace;
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      border: var(--border-thick);
+      background: var(--bg-input);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .neo-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--ink);
+    }
+
+    .neo-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px var(--ink);
+    }
+
+    .neo-btn.btn-yellow { background: var(--yellow); color: #111111; }
+    .neo-btn.btn-pink { background: var(--pink); color: #FFFFFF; }
+    .neo-btn.btn-blue { background: var(--blue); color: #FFFFFF; }
+    .neo-btn.btn-red { background: var(--orange-red); color: #FFFFFF; }
+
+    .hero-stats-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 2px dashed var(--ink);
+      padding-top: 18px;
+    }
+
+    .filed-counter-box {
+      background: var(--yellow);
+      color: #111111;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-sm);
+      padding: 12px 18px;
+    }
+
+    .filed-counter-num {
+      font-family: 'Anton', sans-serif;
+      font-size: 2.3rem;
+      line-height: 1;
+      display: block;
+    }
+
+    .filed-counter-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* Circular Red Stamp */
+    .red-stamp {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      border: 4px double var(--orange-red);
+      color: var(--orange-red);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      font-weight: 700;
+      font-size: 0.65rem;
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+      transform: rotate(-12deg);
+      box-shadow: inset 0 0 0 2px var(--orange-red);
+      background: rgba(255, 59, 29, 0.06);
+      flex-shrink: 0;
+      animation: stampPulse 4s ease-in-out infinite;
+    }
+
+    .red-stamp strong {
+      font-family: 'Anton', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.06em;
+      display: block;
+    }
+
+    @keyframes stampPulse {
+      0%, 100% { transform: rotate(-12deg) scale(1); }
+      50% { transform: rotate(-9deg) scale(1.03); }
+    }
+
+    /* ==========================================================================
+       5. NEW ENTRY FORM ("FORM 01-A • CUT HERE")
+       ========================================================================== */
+    .entry-section {
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      box-shadow: var(--shadow-lg);
+      padding: 26px 28px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .entry-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 3px dashed var(--ink);
+    }
+
+    .entry-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .entry-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 1.85rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .entry-sub {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+    }
+
+    .badge-fresh {
+      background: var(--yellow);
+      color: #111111;
+      border: 2px solid var(--ink);
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      box-shadow: 3px 3px 0px var(--ink);
+      transform: rotate(2deg);
+    }
+
+    .cut-here-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange-red);
+      border: 2px dashed var(--orange-red);
+      padding: 4px 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .entry-form-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 0.9fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+
+    .entry-extra-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 2px dotted var(--ink);
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-field label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-field label span {
+      background: var(--ink);
+      color: var(--bg-paper);
+      padding: 1px 6px;
+      font-size: 0.68rem;
+    }
+
+    .neo-input, .neo-select, .neo-textarea {
+      font-family: 'Space Mono', 'Hind Siliguri', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 12px 14px;
+      background: var(--bg-input);
+      color: var(--ink);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-sm);
+      outline: none;
+      width: 100%;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.15s ease;
+    }
+
+    .neo-input:focus, .neo-select:focus, .neo-textarea:focus {
+      border-color: var(--blue);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--blue);
+    }
+
+    .file-it-btn {
+      height: 47px;
+      padding: 0 24px;
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+    }
+
+    /* ==========================================================================
+       6. SEARCH & CATEGORY FILTER BAR
+       ========================================================================== */
+    .filter-bar {
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      box-shadow: var(--shadow-md);
+      padding: 18px 22px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .filter-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .search-box-wrap {
+      flex: 1 1 300px;
+      position: relative;
+    }
+
+    .search-box-wrap input {
+      padding-right: 42px;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--orange-red);
+      color: #fff;
+      border: 2px solid var(--ink);
+      width: 24px;
+      height: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .cat-tab {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border: var(--border-thick);
+      background: var(--bg-input);
+      color: var(--ink);
+      box-shadow: 3px 3px 0px var(--ink);
+      cursor: pointer;
+      transition: all 0.12s ease;
+      text-transform: uppercase;
+    }
+
+    .cat-tab:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px var(--ink);
+    }
+
+    .cat-tab.active {
+      background: var(--blue);
+      color: #FFFFFF;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--pink);
+    }
+
+    /* ==========================================================================
+       7. THE CARD CATALOG SECTION & CARDS
+       ========================================================================== */
+    .catalog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: var(--border-heavy);
+      padding-bottom: 12px;
+    }
+
+    .catalog-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 2.3rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cards-count-badge {
+      background: var(--pink);
+      color: #FFFFFF;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-sm);
+      padding: 5px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(345px, 1fr));
+      gap: 24px;
+    }
+
+    /* Individual Link Card */
+    .link-card {
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      border-left-width: 12px;
+      box-shadow: var(--shadow-md);
+      padding: 20px 20px 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
+      animation: stampIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .link-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 10px 10px 0px var(--ink);
+    }
+
+    .link-card.removing {
+      animation: slideOutCard 0.28s ease forwards;
+    }
+
+    @keyframes stampIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes slideOutCard {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.85) rotate(-4deg); }
+    }
+
+    /* Category Accent Left Borders */
+    .link-card[data-cat="WORK"] { border-left-color: var(--blue); }
+    .link-card[data-cat="LEARNING"] { border-left-color: var(--yellow); }
+    .link-card[data-cat="FUN"] { border-left-color: var(--pink); }
+    .link-card[data-cat="SEARCH"] { border-left-color: var(--orange-red); }
+    .link-card[data-cat="FILE & CONVERTER"] { border-left-color: var(--cyan); }
+    .link-card[data-cat="PDF & PAPER"] { border-left-color: var(--orange-red); }
+    .link-card[data-cat="OSINT & PRIVACY"] { border-left-color: var(--purple); }
+    .link-card[data-cat="AI & WRITING"] { border-left-color: var(--green); }
+    .link-card[data-cat="DESIGN & MEDIA"] { border-left-color: var(--pink); }
+    .link-card[data-cat="MOVIES & STREAM"] { border-left-color: var(--yellow); }
+    .link-card[data-cat="DEV & NO-SIGNUP"] { border-left-color: var(--blue); }
+
+    .card-watermark-num {
+      position: absolute;
+      right: 10px;
+      bottom: 34px;
+      font-family: 'Anton', sans-serif;
+      font-size: 5.5rem;
+      line-height: 1;
+      color: var(--watermark-color);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card-top-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+      border-bottom: 2px dotted var(--ink);
+      padding-bottom: 10px;
+    }
+
+    .serial-no {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sub-badge {
+      font-size: 0.64rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border: 2px solid var(--ink);
+      background: var(--bg-input);
+      color: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .cat-badge {
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border: 2px solid var(--ink);
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0px var(--ink);
+      background: var(--blue);
+      color: #FFFFFF;
+    }
+    .cat-badge[data-cat="WORK"], .cat-badge[data-cat="DEV & NO-SIGNUP"] { background: var(--blue); color: #FFFFFF; }
+    .cat-badge[data-cat="LEARNING"], .cat-badge[data-cat="MOVIES & STREAM"] { background: var(--yellow); color: #111111; }
+    .cat-badge[data-cat="FUN"], .cat-badge[data-cat="DESIGN & MEDIA"] { background: var(--pink); color: #FFFFFF; }
+    .cat-badge[data-cat="SEARCH"], .cat-badge[data-cat="PDF & PAPER"] { background: var(--orange-red); color: #FFFFFF; }
+    .cat-badge[data-cat="FILE & CONVERTER"] { background: var(--cyan); color: #111111; }
+    .cat-badge[data-cat="OSINT & PRIVACY"] { background: var(--purple); color: #FFFFFF; }
+    .cat-badge[data-cat="AI & WRITING"] { background: var(--green); color: #111111; }
+
+    .card-body {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .letter-icon-box {
+      width: 52px;
+      height: 52px;
+      border: var(--border-thick);
+      box-shadow: 3px 3px 0px var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Anton', sans-serif;
+      font-size: 1.7rem;
+      background: var(--yellow);
+      color: #111111;
+      flex-shrink: 0;
+    }
+
+    .card-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .card-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-domain {
+      font-size: 0.74rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    /* Short Bangla Description Box inside Card */
+    .card-short-desc {
+      position: relative;
+      z-index: 2;
+      background: var(--bg-paper);
+      border: 2px solid var(--ink);
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      font-weight: 600;
+      color: var(--ink);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 48px;
+    }
+
+    /* CSS Barcode Graphic + Actions Row */
+    .card-footer {
+      position: relative;
+      z-index: 2;
+      border-top: 2px solid var(--ink);
+      padding-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .barcode-graphic {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .barcode-bars {
+      width: 66px;
+      height: 20px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--ink) 0px,
+        var(--ink) 2px,
+        transparent 2px,
+        transparent 4px,
+        var(--ink) 4px,
+        var(--ink) 7px,
+        transparent 7px,
+        transparent 9px,
+        var(--ink) 9px,
+        var(--ink) 10px,
+        transparent 10px,
+        transparent 13px
+      );
+    }
+
+    .barcode-code {
+      font-size: 0.54rem;
+      letter-spacing: 0.12em;
+      color: var(--ink-muted);
+      font-weight: 700;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .card-btn {
+      font-family: 'Space Mono', 'Hind Siliguri', monospace;
+      font-weight: 700;
+      font-size: 0.7rem;
+      padding: 6px 9px;
+      border: 2px solid var(--ink);
+      background: var(--bg-input);
+      color: var(--ink);
+      box-shadow: 2px 2px 0px var(--ink);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      text-transform: uppercase;
+    }
+
+    .card-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--ink);
+    }
+
+    .card-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--ink);
+    }
+
+    .card-btn.btn-details {
+      background: var(--yellow);
+      color: #111111;
+    }
+
+    .card-btn.btn-open {
+      background: var(--pink);
+      color: #FFFFFF;
+      padding: 6px 11px;
+    }
+
+    .card-btn.btn-edit:hover {
+      background: var(--blue);
+      color: #FFFFFF;
+    }
+
+    .card-btn.btn-del:hover {
+      background: var(--orange-red);
+      color: #FFFFFF;
+    }
+
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      box-shadow: var(--shadow-md);
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .empty-state h3 {
+      font-family: 'Anton', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--orange-red);
+    }
+
+    /* ==========================================================================
+       8. THREE-PART FOOTER
+       ========================================================================== */
+    .site-footer {
+      margin-top: 56px;
+      background: var(--bg-card);
+      border-top: var(--border-heavy);
+      border-bottom: var(--border-heavy);
+      padding: 20px 24px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .footer-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-heart {
+      color: var(--pink);
+      font-size: 0.95rem;
+    }
+
+    /* ==========================================================================
+       9. 0.8s FULL-SCREEN SHUTTER PORTAL TRANSITION OVERLAY
+       ========================================================================== */
+    .shutter-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .shutter-panel {
+      flex: 1;
+      background: #111111;
+      border-bottom: 4px solid var(--pink);
+      transform: scaleY(0);
+      transition: transform 0.36s cubic-bezier(0.77, 0, 0.175, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shutter-panel.top {
+      transform-origin: top;
+    }
+
+    .shutter-panel.bottom {
+      transform-origin: bottom;
+      border-bottom: none;
+      border-top: 4px solid var(--yellow);
+    }
+
+    .shutter-overlay.active {
+      pointer-events: all;
+    }
+
+    .shutter-overlay.active .shutter-panel {
+      transform: scaleY(1);
+    }
+
+    .shutter-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0;
+      background: var(--yellow);
+      color: #111111;
+      border: 4px solid #FFFFFF;
+      box-shadow: 8px 8px 0px var(--pink);
+      padding: 18px 32px;
+      text-align: center;
+      z-index: 10000;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .shutter-overlay.active .shutter-badge {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .shutter-badge-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.04em;
+      display: block;
+    }
+
+    .shutter-badge-sub {
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       10. DETAILS DOSSIER MODAL & EDIT MODAL
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 17, 17, 0.82);
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: var(--border-heavy);
+      box-shadow: 10px 10px 0px var(--pink);
+      max-width: 580px;
+      width: 100%;
+      padding: 24px;
+      animation: stampIn 0.22s ease forwards;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--ink);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h3 {
+      font-family: 'Anton', sans-serif;
+      font-size: 1.65rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* Details Modal Specific Boxes */
+    .dossier-box {
+      border: var(--border-thick);
+      background: var(--bg-paper);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      box-shadow: 4px 4px 0px var(--ink);
+    }
+
+    .dossier-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--pink);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .step-item {
+      border: 2px solid var(--ink);
+      background: var(--bg-input);
+      padding: 10px;
+      box-shadow: 3px 3px 0px var(--ink);
+    }
+
+    .step-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: var(--yellow);
+      color: #111;
+      padding: 1px 6px;
+      border: 1.5px solid #111;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .pro-tip-box {
+      border: var(--border-thick);
+      background: var(--yellow);
+      color: #111111;
+      padding: 12px 14px;
+      box-shadow: 4px 4px 0px var(--ink);
+      margin-bottom: 18px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 950;
+      background: var(--yellow);
+      color: #111111;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-md);
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      transform: translateY(120%);
+      opacity: 0;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+
+    .toast-box.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       11. RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 960px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+      .entry-form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .file-it-btn {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .entry-form-grid, .entry-extra-grid, .steps-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-left, .hero-right, .entry-section {
+        padding: 20px 16px;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+      .crosshair {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Watermark, Halftone Pattern & Four Corner Crosshairs -->
+  <div class="bg-archive-watermark" aria-hidden="true">ARCHIVE</div>
+  <div class="bg-halftone" aria-hidden="true"></div>
+  <div class="crosshair tl" aria-hidden="true"></div>
+  <div class="crosshair tr" aria-hidden="true"></div>
+  <div class="crosshair bl" aria-hidden="true"></div>
+  <div class="crosshair br" aria-hidden="true"></div>
+
+  <!-- 0.8s Full-Screen Shutter Portal Transition -->
+  <div id="shutterOverlay" class="shutter-overlay" aria-hidden="true">
+    <div class="shutter-panel top"></div>
+    <div class="shutter-badge">
+      <span class="shutter-badge-title" id="shutterTargetTitle">LAUNCHING LINK...</span>
+      <span class="shutter-badge-sub" id="shutterTargetDomain">OPENING EXTERNAL ARCHIVE RECORD ↗</span>
+    </div>
+    <div class="shutter-panel bottom"></div>
+  </div>
+
+  <!-- 1. TOP HOT-PINK MARQUEE BAR -->
+  <div class="marquee-bar marquee-top">
+    <div class="marquee-track">
+      <span>COLLAGE • STAY CURIOUS • SAVE THE GOOD STUFF • CURATE YOUR OWN INTERNET • NO ALGORITHMS • RAW BOOKMARK ARCHIVE • COLLAGE • STAY CURIOUS • SAVE THE GOOD STUFF • CURATE YOUR OWN INTERNET • NO ALGORITHMS • RAW BOOKMARK ARCHIVE • </span>
+      <span>COLLAGE • STAY CURIOUS • SAVE THE GOOD STUFF • CURATE YOUR OWN INTERNET • NO ALGORITHMS • RAW BOOKMARK ARCHIVE • COLLAGE • STAY CURIOUS • SAVE THE GOOD STUFF • CURATE YOUR OWN INTERNET • NO ALGORITHMS • RAW BOOKMARK ARCHIVE • </span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+
+    <!-- 2. HERO SECTION -->
+    <section class="hero-grid">
+      <!-- Hero Left -->
+      <div class="hero-left">
+        <div>
+          <span class="vol-label">PERSONAL LINK ARCHIVE • VOL. 01 / MMXXVI</span>
+          <h1 class="hero-title">LINKBOX</h1>
+        </div>
+        <p class="hero-subtitle">Cut, paste, keep — tomar pochoder internet er nijer filing cabinet.</p>
+      </div>
+
+      <!-- Hero Right -->
+      <div class="hero-right">
+        <div class="top-utility-row">
+          <button type="button" id="nightModeBtn" class="neo-btn btn-yellow" onclick="toggleNightMode()">
+            <span id="nightModeIcon">◐</span> NIGHT MODE
+          </button>
+          <button type="button" class="neo-btn" onclick="exportArchiveJSON()">
+            ↓ EXPORT
+          </button>
+          <button type="button" class="neo-btn" onclick="triggerImportFile()">
+            ↑ IMPORT
+          </button>
+          <button type="button" class="neo-btn btn-red" onclick="resetToFullDefaultArchive()" title="Restore All 24 Default Websites">
+            ↺ RESET 24
+          </button>
+          <input type="file" id="importFileInput" accept=".json,application/json" style="display:none" onchange="importArchiveJSON(event)">
+        </div>
+
+        <div class="hero-stats-area">
+          <div class="filed-counter-box">
+            <span class="filed-counter-num" id="heroLinksCounter">24</span>
+            <span class="filed-counter-label">LINKS FILED</span>
+          </div>
+
+          <div class="red-stamp" title="100% Local Browser Storage">
+            <span>100% LOCAL</span>
+            <strong>NO CLOUD</strong>
+            <span>• 2026 •</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 3. MIDDLE BLACK MARQUEE BAR -->
+  <div class="marquee-bar marquee-mid">
+    <div class="marquee-track">
+      <span>YOUR LINKS, YOUR RULES • 100% LOCAL STORAGE • ZERO CLOUD TRACKING • INSTANT JSON BACKUP • BUILT FOR SPEED • YOUR LINKS, YOUR RULES • 100% LOCAL STORAGE • ZERO CLOUD TRACKING • INSTANT JSON BACKUP • BUILT FOR SPEED • </span>
+      <span>YOUR LINKS, YOUR RULES • 100% LOCAL STORAGE • ZERO CLOUD TRACKING • INSTANT JSON BACKUP • BUILT FOR SPEED • YOUR LINKS, YOUR RULES • 100% LOCAL STORAGE • ZERO CLOUD TRACKING • INSTANT JSON BACKUP • BUILT FOR SPEED • </span>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 4px;">
+
+    <!-- 4. NEW ENTRY FORM ("FORM 01-A • CUT HERE") -->
+    <section class="entry-section">
+      <div class="entry-header">
+        <div class="entry-title-group">
+          <h2 class="entry-title">NEW ENTRY</h2>
+          <span class="entry-sub">(paste • file • done)</span>
+          <span class="badge-fresh">FRESH INK</span>
+        </div>
+        <span class="cut-here-label">✂ FORM 01-A • CUT HERE</span>
+      </div>
+
+      <form id="newEntryForm" onsubmit="handleNewEntry(event)" autocomplete="off">
+        <div class="entry-form-grid">
+          <div class="form-field">
+            <label for="inputUrl"><span>01</span> / URL *</label>
+            <input type="url" id="inputUrl" class="neo-input" placeholder="https://example.com" required>
+          </div>
+
+          <div class="form-field">
+            <label for="inputTitle"><span>02</span> / TITLE (AUTO IF EMPTY)</label>
+            <input type="text" id="inputTitle" class="neo-input" placeholder="Leave blank to auto-detect" maxlength="60">
+          </div>
+
+          <div class="form-field">
+            <label for="inputFolder"><span>03</span> / FOLDER</label>
+            <select id="inputFolder" class="neo-select">
+              <option value="FILE & CONVERTER">FILE & CONVERTER</option>
+              <option value="PDF & PAPER">PDF & PAPER</option>
+              <option value="OSINT & PRIVACY">OSINT & PRIVACY</option>
+              <option value="AI & WRITING">AI & WRITING</option>
+              <option value="DESIGN & MEDIA">DESIGN & MEDIA</option>
+              <option value="MOVIES & STREAM">MOVIES & STREAM</option>
+              <option value="DEV & NO-SIGNUP">DEV & NO-SIGNUP</option>
+              <option value="WORK">WORK</option>
+              <option value="LEARNING">LEARNING</option>
+              <option value="FUN">FUN</option>
+              <option value="SEARCH">SEARCH</option>
+            </select>
+          </div>
+
+          <button type="submit" class="neo-btn btn-pink file-it-btn">
+            FILE IT ➔
+          </button>
+        </div>
+
+        <!-- Optional Details Fields for New Entry -->
+        <div class="entry-extra-grid">
+          <div class="form-field">
+            <label for="inputShort"><span>04</span> / SHORT PURPOSE (মূল কাজ - বাংলায় / ঐচ্ছিক)</label>
+            <input type="text" id="inputShort" class="neo-input font-bangla" placeholder="যেমন: অ্যাপ ছাড়াই সরাসরি ফাইল আদান-প্রদান...">
+          </div>
+          <div class="form-field">
+            <label for="inputPurpose"><span>05</span> / DETAILED GUIDE (বিস্তারিত বিবরণ - ঐচ্ছিক)</label>
+            <input type="text" id="inputPurpose" class="neo-input font-bangla" placeholder="এই ওয়েবসাইটটি কীভাবে কাজ করে তার বিস্তারিত...">
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- 5. SEARCH & FILTER BAR -->
+    <section class="filter-bar">
+      <div class="filter-top-row">
+        <div class="search-box-wrap">
+          <input
+            type="text"
+            id="searchInput"
+            class="neo-input"
+            placeholder="SEARCH THE ARCHIVE BY NAME, PURPOSE OR TAG... ( / )"
+            oninput="handleSearchInput()"
+          >
+          <button type="button" id="searchClearBtn" class="search-clear-btn" onclick="clearSearch()">✕</button>
+        </div>
+      </div>
+
+      <div class="category-tabs" id="categoryTabs">
+        <button type="button" class="cat-tab active" data-cat="ALL" onclick="setCategoryFilter('ALL')">ALL</button>
+        <button type="button" class="cat-tab" data-cat="FILE & CONVERTER" onclick="setCategoryFilter('FILE & CONVERTER')">⚡ FILE & CONVERT</button>
+        <button type="button" class="cat-tab" data-cat="PDF & PAPER" onclick="setCategoryFilter('PDF & PAPER')">📄 PDF & PAPER</button>
+        <button type="button" class="cat-tab" data-cat="OSINT & PRIVACY" onclick="setCategoryFilter('OSINT & PRIVACY')">🕵️ OSINT & PRIVACY</button>
+        <button type="button" class="cat-tab" data-cat="AI & WRITING" onclick="setCategoryFilter('AI & WRITING')">🤖 AI & WRITING</button>
+        <button type="button" class="cat-tab" data-cat="DESIGN & MEDIA" onclick="setCategoryFilter('DESIGN & MEDIA')">🎨 DESIGN & MEDIA</button>
+        <button type="button" class="cat-tab" data-cat="MOVIES & STREAM" onclick="setCategoryFilter('MOVIES & STREAM')">🎬 MOVIES & STREAM</button>
+        <button type="button" class="cat-tab" data-cat="DEV & NO-SIGNUP" onclick="setCategoryFilter('DEV & NO-SIGNUP')">🛠️ DEV & NO-SIGNUP</button>
+        <button type="button" class="cat-tab" data-cat="WORK" onclick="setCategoryFilter('WORK')">WORK</button>
+        <button type="button" class="cat-tab" data-cat="LEARNING" onclick="setCategoryFilter('LEARNING')">LEARNING</button>
+        <button type="button" class="cat-tab" data-cat="FUN" onclick="setCategoryFilter('FUN')">FUN</button>
+        <button type="button" class="cat-tab" data-cat="SEARCH" onclick="setCategoryFilter('SEARCH')">SEARCH</button>
+      </div>
+    </section>
+
+    <!-- 6. THE CARD CATALOG -->
+    <section>
+      <div class="catalog-header">
+        <h2 class="catalog-title">THE CARD CATALOG</h2>
+        <span class="cards-count-badge" id="catalogCountBadge">24 CARDS</span>
+      </div>
+
+      <div class="cards-grid" id="cardsGrid">
+        <!-- Populated dynamically by JavaScript -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 7. THREE-PART FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>LINKBOX • VOL. 01 • MMXXVI</div>
+      <div>SET IN ANTON &amp; SPACE MONO • NO TRACKERS</div>
+      <div>MADE FOR <span class="footer-heart">♥</span> THE PERSONAL WEB</div>
+    </div>
+  </footer>
+
+  <!-- DETAILS DOSSIER MODAL ("বিস্তারিত" CLICK) -->
+  <div id="detailsModal" class="modal-backdrop" onclick="handleBackdropClick(event)">
+    <div class="modal-card" id="detailsModalContent">
+      <!-- Populated dynamically when user clicks বিস্তারিত -->
+    </div>
+  </div>
+
+  <!-- EDIT ENTRY MODAL -->
+  <div id="editModal" class="modal-backdrop" onclick="handleBackdropClick(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>EDIT ARCHIVE CARD</h3>
+        <button type="button" class="card-btn btn-del" onclick="closeEditModal()">✕</button>
+      </div>
+      <form id="editEntryForm" onsubmit="saveEditedCard(event)" style="display:flex; flex-direction:column; gap:12px;">
+        <input type="hidden" id="editCardId">
+        <div class="form-field">
+          <label for="editUrl"><span>01</span> / URL *</label>
+          <input type="url" id="editUrl" class="neo-input" required>
+        </div>
+        <div class="form-field">
+          <label for="editTitle"><span>02</span> / TITLE</label>
+          <input type="text" id="editTitle" class="neo-input" maxlength="60" placeholder="Auto-generate from domain if empty">
+        </div>
+        <div class="form-field">
+          <label for="editFolder"><span>03</span> / FOLDER</label>
+          <select id="editFolder" class="neo-select">
+            <option value="FILE & CONVERTER">FILE & CONVERTER</option>
+            <option value="PDF & PAPER">PDF & PAPER</option>
+            <option value="OSINT & PRIVACY">OSINT & PRIVACY</option>
+            <option value="AI & WRITING">AI & WRITING</option>
+            <option value="DESIGN & MEDIA">DESIGN & MEDIA</option>
+            <option value="MOVIES & STREAM">MOVIES & STREAM</option>
+            <option value="DEV & NO-SIGNUP">DEV & NO-SIGNUP</option>
+            <option value="WORK">WORK</option>
+            <option value="LEARNING">LEARNING</option>
+            <option value="FUN">FUN</option>
+            <option value="SEARCH">SEARCH</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="editBadge"><span>04</span> / BADGE TAG</label>
+          <input type="text" id="editBadge" class="neo-input" placeholder="e.g. P2P Share">
+        </div>
+        <div class="form-field">
+          <label for="editShort"><span>05</span> / SHORT PURPOSE (মূল কাজ)</label>
+          <input type="text" id="editShort" class="neo-input font-bangla">
+        </div>
+        <div class="form-field">
+          <label for="editPurpose"><span>06</span> / DETAILED GUIDE (বিস্তারিত কাজ)</label>
+          <textarea id="editPurpose" rows="3" class="neo-textarea font-bangla"></textarea>
+        </div>
+        <div class="form-field">
+          <label for="editTip"><span>07</span> / PRO TIP (প্রো-টিপ)</label>
+          <input type="text" id="editTip" class="neo-input font-bangla">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+          <button type="button" class="neo-btn" onclick="closeEditModal()">CANCEL</button>
+          <button type="submit" class="neo-btn btn-pink">UPDATE CARD</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastBox" class="toast-box" role="status" aria-live="polite">
+    RECORD FILED IN ARCHIVE
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT ENGINE (ALL 24 WEBSITES + FULL DETAILS + SHUTTER + LOCALSTORAGE)
+       ========================================================================== -->
+  <script>
+    const STORAGE_KEY = 'linkbox_archive_v2_full_24';
+    const THEME_KEY = 'linkbox_night_mode_v1';
+
+    const VALID_CATEGORIES = [
+      'FILE & CONVERTER',
+      'PDF & PAPER',
+      'OSINT & PRIVACY',
+      'AI & WRITING',
+      'DESIGN & MEDIA',
+      'MOVIES & STREAM',
+      'DEV & NO-SIGNUP',
+      'WORK',
+      'LEARNING',
+      'FUN',
+      'SEARCH'
+    ];
+
+    // Complete 24 Websites (All 19 from BAPPY // NEXUS + 5 Core LINKBOX Sites) with Full Bangla Details
+    const DEFAULT_LINKS = [
+      {
+        id: "pairdrop",
+        title: "PairDrop",
+        url: "https://pairdrop.net/",
+        category: "FILE & CONVERTER",
+        badge: "P2P Share",
+        shortPurpose: "যেকোনো ফোন ও পিসির মধ্যে অ্যাপ ছাড়াই সরাসরি ফাইল আদান-প্রদান।",
+        purpose: "Apple AirDrop-এর মতো কাজ করে। পিসি বা মোবাইলে কোনো অ্যাপ ইনস্টল না করেই শুধু ব্রাউজার খুলে লোকাল ওয়াইফাই বা ৬-ডিজিট পেয়ার কোড দিয়ে বড় ফাইল, ছবি বা টেক্সট মুহূর্তেই পাঠানো যায়।",
+        steps: ["দুই ডিভাইসে সাইট খুলুন", "ডিভাইস সিলেক্ট করে ফাইল দিন", "সাথে সাথে ডাউনলোড"],
+        tip: "ভিন্ন নেটওয়ার্কে থাকলেও উপরের 'Pair Devices' বাটনে ক্লিক করে কোড মিলিয়ে যেকোনো জায়গায় ফাইল পাঠাতে পারবেন।"
+      },
+      {
+        id: "vertsh",
+        title: "VERT.sh",
+        url: "https://vert.sh/",
+        category: "FILE & CONVERTER",
+        badge: "Local Convert",
+        shortPurpose: "ফাইল সাইজ লিমিট বা সার্ভার আপলোড ছাড়াই ব্রাউজারে দ্রুত ফাইল কনভার্টার।",
+        purpose: "অন্যান্য সাইটে ফাইল আপলোড হতে অনেক সময় লাগে, কিন্তু VERT.sh আপনার ডিভাইসের নিজস্ব প্রসেসর ব্যবহার করে ব্রাউজারের ভেতরেই ছবি, অডিও, ভিডিও ও ডকুমেন্ট নিমেষে কনভার্ট করে।",
+        steps: ["যেকোনো ফাইল ড্রপ করুন", "কাঙ্ক্ষিত ফরম্যাট বেছে নিন", "তাৎক্ষণিক সেভ করুন"],
+        tip: "ফাইল সার্ভারে আপলোড হয় না বলে গোপন বা ব্যক্তিগত ফাইলের জন্য এটি ১০০% নিরাপদ এবং সুপার ফাস্ট।"
+      },
+      {
+        id: "onlineconvert",
+        title: "Online-Convert",
+        url: "https://www.online-convert.com/",
+        category: "FILE & CONVERTER",
+        badge: "All Formats",
+        shortPurpose: "অডিও, ভিডিও, ইবুক, আর্কাইভ ও ক্যাডসহ শত শত আনকমন ফরম্যাট কনভার্টার।",
+        purpose: "যখন কোনো আনকমন ফরম্যাটের ফাইল (যেমন EPUB, SVG, WAV, ZIP, DPI পরিবর্তন) কনভার্ট করার দরকার হয় এবং রেজোলিউশন বা বিটরেট কাস্টমাইজ করতে হয়, তখন এই অল-ইন-ওয়ান কনভার্টারটি সবচেয়ে কার্যকরী।",
+        steps: ["ক্যাটাগরি ও ফরম্যাট বাছুন", "ফাইল আপলোড ও সেটিংস দিন", "কনভার্টেড ফাইল নামান"],
+        tip: "কনভার্ট করার আগে নিচে অ্যাডভান্সড অপশন থেকে ফাইলের কোয়ালিটি ও সাইজ কাস্টমাইজ করে নেওয়া যায়।"
+      },
+      {
+        id: "paperme",
+        title: "PaperMe by Pixzens",
+        url: "https://paperme.pixzens.com/en",
+        category: "PDF & PAPER",
+        badge: "Paper Studio",
+        shortPurpose: "কাস্টম রুলড খাতা, গ্রাফ পেপার, ডট গ্রিড বা প্ল্যানার তৈরি ও PDF প্রিন্ট।",
+        purpose: "নোট নেওয়া, ড্রয়িং, ক্যালিগ্রাফি বা মিউজিক শিট লেখার জন্য আপনার নিজের পছন্দমতো লাইনের দূরত্ব, রঙ ও মার্জিন সেট করে প্রিন্ট করার উপযোগী A4 বা যেকোনো সাইজের PDF পেপার ডাউনলোড করা যায়।",
+        steps: ["পেপার টেমপ্লেট বেছে নিন", "লাইনের গ্যাপ ও রঙ কাস্টমাইজ করুন", "PDF ডাউনলোড বা প্রিন্ট করুন"],
+        tip: "ট্যাবলেটে (iPad/GoodNotes) লেখার জন্য ডার্ক বা কাস্টম ব্যাকগ্রাউন্ডের ডিজিটাল পেপারও এখান থেকে বানানো যায়।"
+      },
+      {
+        id: "lightpdf",
+        title: "LightPDF",
+        url: "https://lightpdf.com/",
+        category: "PDF & PAPER",
+        badge: "AI PDF Chat",
+        shortPurpose: "AI দিয়ে বড় PDF বইয়ের সারমর্ম বের করা, প্রশ্ন করা ও ডকুমেন্ট এডিট করা।",
+        purpose: "শত শত পৃষ্ঠার PDF ডকুমেন্ট বা রিসার্চ পেপার নিজে না পড়ে এই সাইটে আপলোড করে চ্যাটবক্সে প্রশ্ন করলে AI সাথে সাথে উত্তর ও সারসংক্ষেপ তৈরি করে দেয়। সাথে OCR ও কনভার্সন টুলও রয়েছে।",
+        steps: ["PDF ডকুমেন্ট আপলোড করুন", "AI চ্যাটবক্সে প্রশ্ন লিখুন", "সারাংশ বা এডিটেড ফাইল নিন"],
+        tip: "স্ক্যান করা ঝাপসা ছবি বা পিডিএফ থেকে লেখা কপি করতে এর OCR ফিচারটি দারুণ কাজ করে।"
+      },
+      {
+        id: "ilovepdf",
+        title: "iLovePDF",
+        url: "https://www.ilovepdf.com/",
+        category: "PDF & PAPER",
+        badge: "PDF Toolkit",
+        shortPurpose: "PDF জোড়া লাগানো, ভাগ করা, সাইজ কমানো ও Word-এ রূপান্তর করার সেরা টুল।",
+        purpose: "পিডিএফ ফাইলের যাবতীয় কাজের জন্য সবচেয়ে জনপ্রিয় ওয়েবসাইট। একাধিক পিডিএফ একত্র করা (Merge), নির্দিষ্ট পৃষ্ঠা আলাদা করা (Split), মেগাবাইট কমানো (Compress) এবং PDF থেকে Word/Excel করার সেরা জায়গা।",
+        steps: ["প্রয়োজনীয় PDF টুল সিলেক্ট করুন", "এক বা একাধিক PDF দিন", "প্রসেস শেষে ডাউনলোড করুন"],
+        tip: "অফিস বা অনলাইন ফর্মে আপলোডের জন্য পিডিএফ সাইজ কমাতে 'Compress PDF' টুলটি ব্যবহার করুন।"
+      },
+      {
+        id: "osint4all",
+        title: "OSINT4All",
+        url: "https://start.me/p/L1rEYQ/osint4all",
+        category: "OSINT & PRIVACY",
+        badge: "OSINT Directory",
+        shortPurpose: "সাইবার ইনভেস্টিগেশন ও তথ্য যাচাইয়ের শত শত গোপন OSINT টুলের মেগা ড্যাশবোর্ড।",
+        purpose: "সোশ্যাল মিডিয়া ট্র্যাকিং, ইমেইল/ইউজারনেম সার্চ, ছবির লোকেশন যাচাই (Reverse Image), ডোমেইন ট্র্যাকিং এবং পাবলিক রেকর্ড খোঁজার জন্য বিশ্বের সেরা সব ওপেন-সোর্স ইন্টেলিজেন্স লিংক এক পেজে সাজানো আছে।",
+        steps: ["তদন্তের ক্যাটাগরি খুঁজুন", "নির্দিষ্ট OSINT টুলে ক্লিক করুন", "তথ্য যাচাই ও বিশ্লেষণ করুন"],
+        tip: "যেকোনো ফেক প্রোফাইল বা অজানা সোর্সের ছবি যাচাই করতে এর Image & Social Media সেকশন ব্যবহার করুন।"
+      },
+      {
+        id: "maxintel",
+        title: "Max Intel",
+        url: "https://maxintel.org/",
+        category: "OSINT & PRIVACY",
+        badge: "100+ Recon Tools",
+        shortPurpose: "ফ্রন্টএন্ড ও প্রাইভেসি-ফার্স্ট ১০০+ ইন্টেলিজেন্স এবং নেটওয়ার্ক ইউটিলিটি।",
+        purpose: "কোনো রেজিস্ট্রেশন বা ট্র্যাকিং ছাড়াই ব্রাউজার থেকে সরাসরি মেটাডেটা চেক, আইপি/ডোমেইন লুকআপ, এনক্রিপশন এবং ডিজিটাল ফরেনসিক ইউটিলিটি ব্যবহারের জন্য একটি ক্লিন ও প্রাইভেসি-বান্ধব ওয়েবসাইট।",
+        steps: ["টুল ডিরেক্টরি ব্রাউজ করুন", "টার্গেট ডেটা বা ফাইল দিন", "ব্রাউজারেই রিপোর্ট দেখুন"],
+        tip: "ছবি সোশ্যাল মিডিয়ায় দেওয়ার আগে এর EXIF/Metadata টুল দিয়ে ছবির ভেতর লুকানো জিপিএস লোকেশন মুছে ফেলতে পারেন।"
+      },
+      {
+        id: "privnote",
+        title: "Privnote",
+        url: "https://privnote.com/",
+        category: "OSINT & PRIVACY",
+        badge: "Self-Destruct",
+        shortPurpose: "এমন গোপন নোট বা পাসওয়ার্ড পাঠানো যা প্রাপক একবার পড়ার সাথে সাথেই ধ্বংস হয়ে যায়।",
+        purpose: "মেসেঞ্জার বা ইমেইলে পাসওয়ার্ড, API Key বা গোপন তথ্য পাঠালে তা চ্যাট হিস্ট্রিতে থেকে যায়। Privnote-এ তথ্য লিখে লিংক পাঠালে অপর পাশের ব্যক্তি লিংকটি ওপেন করে পড়ার পরই সেটি চিরতরে ডিলিট হয়ে যাবে।",
+        steps: ["গোপন টেক্সট বা পাসওয়ার্ড লিখুন", "ওয়ান-টাইম লিংক তৈরি করুন", "প্রাপককে লিংকটি পাঠান"],
+        tip: "নোট তৈরি করার সময় 'Manual Password' অপশন অন করে দিলে নিরাপত্তা আরও দ্বিগুণ হবে।"
+      },
+      {
+        id: "gptzero",
+        title: "GPTZero",
+        url: "https://gptzero.me/",
+        category: "AI & WRITING",
+        badge: "AI Detector",
+        shortPurpose: "কোনো লেখা মানুষ লিখেছে নাকি ChatGPT/AI দিয়ে লেখা তা নিখুঁতভাবে শনাক্ত করা।",
+        purpose: "আর্টিকেল, অ্যাসাইনমেন্ট বা ফ্রিল্যান্সিং রাইটিং জমা দেওয়ার আগে লেখাটি AI জেনারেটেড হিসেবে ধরা পড়ছে কি না এবং কোন কোন লাইনে AI-এর ছাপ আছে তা বাক্য ধরে ধরে হাইলাইট করে দেখায়।",
+        steps: ["ইংরেজি বা টেক্সট পেস্ট করুন", "Check Origin বাটনে চাপুন", "AI শতকরা হার ও লাইন দেখুন"],
+        tip: "যে লাইনগুলো হলুদ বা লাল মার্ক করবে, সেগুলো নিজের ভাষায় একটু পরিবর্তন করলেই ১০০% হিউম্যান স্কোর পাবেন।"
+      },
+      {
+        id: "writehuman",
+        title: "WriteHuman AI",
+        url: "https://writehuman.ai/",
+        category: "AI & WRITING",
+        badge: "AI Humanizer",
+        shortPurpose: "AI দিয়ে লেখা রোবটিক টেক্সটকে মানুষের স্বাভাবিক লেখায় রূপান্তর করা।",
+        purpose: "ChatGPT, Claude বা Gemini দিয়ে জেনারেট করা লেখাকে এমনভাবে ন্যাচারাল হিউম্যান টোনে রিরাইট করে দেয় যাতে Turnitin বা GPTZero-এর মতো কড়া AI ডিটেক্টরেও তা মানুষের লেখা হিসেবে গণ্য হয়।",
+        steps: ["AI জেনারেটেড লেখা দিন", "Write Human-এ ক্লিক করুন", "ন্যাচারাল হিউম্যান টেক্সট নিন"],
+        tip: "কোনো নির্দিষ্ট শব্দ বা ব্র্যান্ডের নাম অপরিবর্তিত রাখতে চাইলে সেটিকে [ব্র্যাকেটের] ভেতর রাখুন।"
+      },
+      {
+        id: "kieai",
+        title: "Kie.ai Market",
+        url: "https://kie.ai/market",
+        category: "AI & WRITING",
+        badge: "AI Model Hub",
+        shortPurpose: "বিশ্বের সেরা সব ভিডিও, ইমেজ, মিউজিক ও LLM AI মডেল এক প্ল্যাটফর্মে ব্যবহার।",
+        purpose: "আলাদা আলাদা ওয়েবসাইটে সাবস্ক্রিপশন না নিয়ে এক জায়গায় Kling, Hailuo, Runway, Midjourney, Flux এবং Suno-এর মতো অত্যাধুনিক সব জেনারেটিভ AI মডেল ও API কম খরচে টেস্ট ও ব্যবহারের মার্কেটপ্লেস।",
+        steps: ["পছন্দের AI মডেল বেছে নিন", "প্রম্পট বা রেফারেন্স দিন", "হাই-কোয়ালিটি আউটপুট পান"],
+        tip: "নতুন কোনো ভাইরাল AI ভিডিও বা ইমেজ মডেল বের হলে সবার আগে এই মার্কেটপ্লেসে খুঁজে পাবেন।"
+      },
+      {
+        id: "pixlr",
+        title: "Pixlr Editor",
+        url: "https://pixlr.com/editor/",
+        category: "DESIGN & MEDIA",
+        badge: "Cloud Photo Lab",
+        shortPurpose: "সফটওয়্যার ইনস্টল ছাড়াই ব্রাউজারে ফটোশপের মতো লেয়ার-ভিত্তিক ফটো এডিটিং।",
+        purpose: "কম্পিউটারে ভারী ফটোশপ না থাকলেও ব্রাউজারে সরাসরি PSD/PNG ছবি খোলা, লেয়ার মাস্কিং, ব্যাকগ্রাউন্ড রিমুভ, কালার গ্রেডিং এবং থাম্বনেইল ডিজাইন করার পূর্ণাঙ্গ ক্লাউড ফটো এডিটর।",
+        steps: ["ছবি ওপেন বা প্রজেক্ট খুলুন", "লেয়ার ও AI টুল দিয়ে এডিট করুন", "PNG/JPG/WEBP-তে সেভ করুন"],
+        tip: "কিবোর্ড শর্টকাটগুলো হুবহু অ্যাডোবি ফটোশপের মতোই কাজ করে, তাই দ্রুত কাজ সারা যায়।"
+      },
+      {
+        id: "googlefonts",
+        title: "Google Fonts",
+        url: "https://fonts.google.com/",
+        category: "DESIGN & MEDIA",
+        badge: "Typography",
+        shortPurpose: "ওয়েবসাইট ও গ্রাফিক ডিজাইনের জন্য সেরা বাংলা ও ইংরেজি ফ্রি ফন্টের ভান্ডার।",
+        purpose: "ডিজাইন বা কোডিংয়ের জন্য ১০০% ফ্রি এবং ওপেন-সোর্স ফন্ট ডাউনলোড অথবা ওয়েবসাইটে সরাসরি লিংক (@import) করার অফিশিয়াল গুগল লাইব্রেরি। সাথে কয়েক হাজার ক্লিন আইকনও রয়েছে।",
+        steps: ["ভাষা (Bengali/Latin) ফিল্টার করুন", "নিজের টেক্সট লিখে প্রিভিউ দেখুন", "ফন্ট ডাউনলোড বা কোড নিন"],
+        tip: "বাংলা প্রিমিয়াম লুকের জন্য 'Hind Siliguri', 'Noto Sans Bengali' বা 'Baloo Da 2' লিখে সার্চ করুন।"
+      },
+      {
+        id: "pixabay",
+        title: "Pixabay",
+        url: "https://pixabay.com/",
+        category: "DESIGN & MEDIA",
+        badge: "Free Stock 4K",
+        shortPurpose: "কপিরাইট ঝামেলা ছাড়াই ফ্রি 4K ছবি, ভিডিও ফুটেজ, ভেক্টর ও সাউন্ড ইফেক্ট।",
+        purpose: "ইউটিউব ভিডিও, ওয়েবসাইট, প্রেজেন্টেশন বা ডিজাইনের জন্য লাখ লাখ রয়্যালটি-ফ্রি ছবি, ব্যাকগ্রাউন্ড মিউজিক, সাউন্ড ইফেক্ট এবং ইলাস্ট্রেশন একদম ফ্রিতে ডাউনলোড করার নির্ভরযোগ্য সাইট।",
+        steps: ["ছবি/ভিডিও/অডিও সিলেক্ট করে খুঁজুন", "পছন্দের মিডিয়া বেছে নিন", "রেজোলিউশন ঠিক করে ডাউনলোড করুন"],
+        tip: "ভিডিও এডিটিংয়ের সময় ট্রানজিশন বা ক্লিক সাউন্ডের জন্য এর 'Sound Effects' ট্যাবটি অসাধারণ।"
+      },
+      {
+        id: "1flex",
+        title: "1Flex",
+        url: "https://www.1flex.org/",
+        category: "MOVIES & STREAM",
+        badge: "HD Streaming",
+        shortPurpose: "অ্যাকাউন্ট বা সাবস্ক্রিপশন ছাড়াই নতুন হলিউড মুভি ও ওয়েব সিরিজ স্ট্রিমিং।",
+        purpose: "নেটফ্লিক্স বা প্রাইমের জনপ্রিয় সব সিনেমা, টিভি সিরিজ এবং নতুন রিলিজ হওয়া কনটেন্ট ক্লিন ইন্টারফেসে মাল্টিপল ফাস্ট সার্ভার ও সাবটাইটেলসহ সরাসরি ব্রাউজারে দেখার প্ল্যাটফর্ম।",
+        steps: ["মুভি বা সিরিজের নাম সার্চ করুন", "পছন্দের সার্ভার ও সিজন বাছুন", "1080p HD-তে স্ট্রিম করুন"],
+        tip: "বাফারিংমুক্ত ও অ্যাড-ফ্রি অভিজ্ঞতার জন্য ব্রাউজারে uBlock Origin বা Brave Browser ব্যবহার করুন।"
+      },
+      {
+        id: "vidbox",
+        title: "Vidbox",
+        url: "https://vidbox.vc/",
+        category: "MOVIES & STREAM",
+        badge: "Cinema Hub",
+        shortPurpose: "দ্রুতগতির বিকল্প স্ট্রিমিং প্লেয়ার ও ট্রেন্ডিং মুভি/সিরিজ কালেকশন।",
+        purpose: "আধুনিক ও ডার্ক-থিম ইন্টারফেসে কোনো সাইন-আপ ছাড়াই ট্রেন্ডিং সিনেমা, অ্যানিমে এবং টিভি শো এক ক্লিকে প্লে করার জন্য চমৎকার একটি স্ট্রিমিং ওয়েবসাইট।",
+        steps: ["ট্রেন্ডিং লিস্ট বা সার্চ বক্সে যান", "প্লে বাটনে ক্লিক করুন", "সার্ভার সুইচ করে উপভোগ করুন"],
+        tip: "কোনো সার্ভার স্লো মনে হলে প্লেয়ারের নিচে থাকা বিকল্প ক্লাউড সার্ভার সিলেক্ট করলেই সাথে সাথে চলবে।"
+      },
+      {
+        id: "namsogen",
+        title: "Namso-Gen",
+        url: "https://namso-gen.com/?tab=advance&network=random",
+        category: "DEV & NO-SIGNUP",
+        badge: "QA Testing",
+        shortPurpose: "সফটওয়্যার ও পেমেন্ট ফর্ম টেস্ট করার জন্য ডামি টেস্ট কার্ড নম্বর জেনারেটর।",
+        purpose: "ওয়েব ডেভেলপার ও কিউএ টেস্টাররা যখন ই-কমার্স চেকআউট ফর্ম বা ভ্যালিডেশন লজিক (Luhn Algorithm) পরীক্ষা করেন, তখন আসল কার্ড ব্যবহার না করে নির্দিষ্ট BIN প্যাটার্নের ডামি টেস্ট নম্বর তৈরি করতে এটি কাজে লাগে।",
+        steps: ["BIN প্যাটার্ন বা নেটওয়ার্ক দিন", "অ্যাডভান্সড অপশন সেট করুন", "টেস্ট ডেটা জেনারেট ও কপি করুন"],
+        tip: "'Advance' ট্যাব থেকে JSON, CSV বা XML ফরম্যাটে একসাথে বাল্ক টেস্ট ডেটা এক্সপোর্ট করা যায়।"
+      },
+      {
+        id: "nosignups",
+        title: "NoSignups",
+        url: "https://nosignups.net/",
+        category: "DEV & NO-SIGNUP",
+        badge: "Zero Login Hub",
+        shortPurpose: "ইমেইল বা অ্যাকাউন্ট খোলা ছাড়াই ব্যবহার করা যায় এমন ২৫০+ সেরা সাইটের তালিকা।",
+        purpose: "ইন্টারনেটে প্রায় প্রতিটি সাইটেই কাজ করতে গেলে আগে সাইন-আপ করতে বলে। এই ডিরেক্টরিতে শুধুমাত্র সেইসব সেরা টুল, গেম, AI ও ইউটিলিটি সাইট রাখা হয়েছে যেগুলোতে ঢুকে সরাসরি কাজ শুরু করা যায়।",
+        steps: ["ক্যাটাগরি অনুযায়ী টুল খুঁজুন", "সাইটে ক্লিক করে প্রবেশ করুন", "লগইন ছাড়াই সরাসরি কাজ করুন"],
+        tip: "হঠাৎ কোনো নতুন টুলের প্রয়োজন হলে ইমেইল স্প্যাম থেকে বাঁচতে সবার আগে এই সাইটে চেক করুন।"
+      },
+      {
+        id: "card-chatgpt",
+        title: "ChatGPT",
+        url: "https://chatgpt.com",
+        category: "WORK",
+        badge: "AI Assistant",
+        shortPurpose: "যেকোনো জটিল প্রশ্ন, কোডিং, লেখালেখি এবং সমস্যার তাৎক্ষণিক স্মার্ট AI সমাধান।",
+        purpose: "ওপেনএআই-এর তৈরি বিশ্বের সবচেয়ে জনপ্রিয় কৃত্রিম বুদ্ধিমত্তা চ্যাটবট। বাংলা বা ইংরেজিতে যেকোনো ইমেইল লেখা, কোড ডিবাগ করা, আইডিয়া তৈরি ও পড়াশোনার যেকোনো বিষয়ে মুহূর্তেই সাহায্য পাওয়া যায়।",
+        steps: ["চ্যাটবক্সে আপনার প্রশ্ন বা প্রম্পট লিখুন", "প্রয়োজনে ফাইল বা ছবি যুক্ত করুন", "তাৎক্ষণিক বিস্তারিত উত্তর পান"],
+        tip: "সঠিক ও নিখুঁত উত্তর পেতে প্রম্পটে আপনার ভূমিকা ও আউটপুট কেমন চান তা স্পষ্টভাবে উল্লেখ করুন।"
+      },
+      {
+        id: "card-wikipedia",
+        title: "Wikipedia",
+        url: "https://www.wikipedia.org",
+        category: "LEARNING",
+        badge: "Encyclopedia",
+        shortPurpose: "বিশ্বের বৃহত্তম উন্মুক্ত বিশ্বকোষ — ইতিহাস, বিজ্ঞান ও যেকোনো বিষয়ের নির্ভরযোগ্য তথ্যভান্ডার।",
+        purpose: "বাংলা ও ইংরেজিসহ তিন শতাধিক ভাষায় যেকোনো ঐতিহাসিক ঘটনা, জীবনী, বিজ্ঞান, ভূগোল এবং প্রযুক্তির বিস্তারিত তথ্য ও রেফারেন্স এক জায়গায় পড়ার সেরা মুক্ত বিশ্বকোষ।",
+        steps: ["সার্চ বক্সে বিষয়বস্তু লিখুন", "পছন্দের ভাষা (বাংলা/English) বাছুন", "রেফারেন্সসহ বিস্তারিত আর্টিকেল পড়ুন"],
+        tip: "যেকোনো গবেষণার আসল সোর্স খুঁজে পেতে আর্টিকেলের একদম নিচে 'References' অংশের লিংকগুলো ব্যবহার করুন।"
+      },
+      {
+        id: "card-github",
+        title: "GitHub",
+        url: "https://github.com",
+        category: "WORK",
+        badge: "Code Hosting",
+        shortPurpose: "সফটওয়্যার কোড হোস্টিং, ওপেন-সোর্স প্রজেক্ট এবং ফ্রি ওয়েবসাইট ডিপ্লয়মেন্ট প্ল্যাটফর্ম।",
+        purpose: "বিশ্বের কোটি কোটি ডেভেলপারদের প্রজেক্ট সংরক্ষণ, ভার্সন কন্ট্রোল (Git) এবং GitHub Pages-এর মাধ্যমে সম্পূর্ণ ফ্রিতে নিজের ওয়েবসাইট লাইভ করার সবচেয়ে নির্ভরযোগ্য প্ল্যাটফর্ম।",
+        steps: ["রিপোজিটরি তৈরি বা সার্চ করুন", "কোড আপলোড বা ক্লোন করুন", "GitHub Pages দিয়ে লাইভ করুন"],
+        tip: "যেকোনো রিপোজিটরি পেজে কিবোর্ডের '.' (Full Stop) বোতাম চাপলে সাথে সাথে ব্রাউজারেই VS Code ওপেন হয়ে যাবে!"
+      },
+      {
+        id: "card-youtube",
+        title: "YouTube",
+        url: "https://www.youtube.com",
+        category: "FUN",
+        badge: "Video Platform",
+        shortPurpose: "টিউটোরিয়াল, টেক রিভিউ, বিনোদন এবং যেকোনো স্কিল শেখার সর্ববৃহৎ ভিডিও প্ল্যাটফর্ম।",
+        purpose: "পৃথিবীর সবচেয়ে বড় ভিডিও শেয়ারিং ও লার্নিং ওয়েবসাইট। নতুন যেকোনো কাজ শেখা, ডকুমেন্টারি দেখা, মিউজিক কিংবা বিনোদনের জন্য অপরিহার্য মাধ্যম।",
+        steps: ["সার্চ বারে টপিক লিখে খুঁজুন", "ভিডিও প্লে ও রেজোলিউশন সেট করুন", "প্লেলিস্ট বা ওয়াচ লেটারে সেভ রাখুন"],
+        tip: "কিবোর্ডে 'K' চাপলে পজ, 'J' ও 'L' চাপলে ১০ সেকেন্ড আগে/পিছে এবং 'F' চাপলে ফুলস্ক্রিন হয়।"
+      },
+      {
+        id: "card-google",
+        title: "Google",
+        url: "https://www.google.com",
+        category: "SEARCH",
+        badge: "Search Engine",
+        shortPurpose: "ইন্টারনেটের যেকোনো তথ্য, ওয়েবসাইট, ছবি ও সংবাদ মুহূর্তেই খুঁজে বের করার সার্চ ইঞ্জিন।",
+        purpose: "বিশ্বের সবচেয়ে শক্তিশালী সার্চ ইঞ্জিন। অ্যাডভান্সড সার্চ অপারেটর ব্যবহার করে যেকোনো নির্দিষ্ট ফাইল (PDF/DOC), ওয়েবসাইট বা তথ্য সেকেন্ডের মধ্যে খুঁজে বের করা যায়।",
+        steps: ["সার্চ বক্সে কি-ওয়ার্ড লিখুন", "প্রয়োজনে Images/News ট্যাব বাছুন", "কাঙ্ক্ষিত ওয়েবসাইটে প্রবেশ করুন"],
+        tip: "কোনো নির্দিষ্ট বইয়ের পিডিএফ খুঁজতে নামের শেষে 'filetype:pdf' লিখে সার্চ করলে সরাসরি ডাউনলোড লিংক পাবেন।"
+      }
+    ];
+
+    let linksData = [];
+    let activeCategory = 'ALL';
+    let searchQuery = '';
+
+    // --------------------------------------------------------------------------
+    // 1. SECURITY & XSS SANITIZATION HELPERS
+    // --------------------------------------------------------------------------
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function normalizeAndValidateUrl(rawUrl) {
+      if (typeof rawUrl !== 'string') return null;
+      let trimmed = rawUrl.trim();
+      if (!/^https?:\/\//i.test(trimmed)) {
+        trimmed = 'https://' + trimmed;
+      }
+      try {
+        const parsed = new URL(trimmed);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+          return null;
+        }
+        return parsed.href;
+      } catch {
+        return null;
+      }
+    }
+
+    function extractDomain(url) {
+      try {
+        const host = new URL(url).hostname;
+        return host.replace(/^www\./i, '');
+      } catch {
+        return 'unknown.host';
+      }
+    }
+
+    function autoGenerateTitleFromUrl(url) {
+      const domain = extractDomain(url);
+      const baseName = domain.split('.')[0] || 'Link';
+      return baseName.charAt(0).toUpperCase() + baseName.slice(1);
+    }
+
+    function getInitialLetter(title, url) {
+      const cleanTitle = (title || '').trim();
+      if (cleanTitle.length > 0) {
+        return cleanTitle.charAt(0).toUpperCase();
+      }
+      const auto = autoGenerateTitleFromUrl(url);
+      return auto.charAt(0).toUpperCase();
+    }
+
+    // --------------------------------------------------------------------------
+    // 2. STORAGE LOAD, SYNC & SAVE
+    // --------------------------------------------------------------------------
+    function loadArchive() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          linksData = [...DEFAULT_LINKS];
+          saveArchive();
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          linksData = parsed.filter(item => item && normalizeAndValidateUrl(item.url));
+        } else {
+          linksData = [...DEFAULT_LINKS];
+          saveArchive();
+        }
+      } catch {
+        linksData = [...DEFAULT_LINKS];
+      }
+    }
+
+    function saveArchive() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(linksData));
+      } catch (e) {
+        showToast('STORAGE QUOTA WARNING');
+      }
+      updateCounters();
+    }
+
+    function resetToFullDefaultArchive() {
+      linksData = [...DEFAULT_LINKS];
+      saveArchive();
+      activeCategory = 'ALL';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchClearBtn').style.display = 'none';
+      document.querySelectorAll('.cat-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-cat') === 'ALL');
+      });
+      renderCatalog();
+      showToast('RESTORED ALL 24 ARCHIVE SITES WITH DETAILS');
+    }
+
+    function updateCounters() {
+      const total = linksData.length;
+      const padded = String(total).padStart(2, '0');
+      document.getElementById('heroLinksCounter').textContent = padded;
+    }
+
+    // --------------------------------------------------------------------------
+    // 3. RENDERING THE CARD CATALOG
+    // --------------------------------------------------------------------------
+    function getFilteredLinks() {
+      return linksData.filter(item => {
+        const matchesCat = activeCategory === 'ALL' || item.category === activeCategory;
+        const domain = extractDomain(item.url).toLowerCase();
+        const q = searchQuery.toLowerCase().trim();
+        const matchesQuery = !q ||
+          (item.title && item.title.toLowerCase().includes(q)) ||
+          domain.includes(q) ||
+          (item.category && item.category.toLowerCase().includes(q)) ||
+          (item.badge && item.badge.toLowerCase().includes(q)) ||
+          (item.shortPurpose && item.shortPurpose.toLowerCase().includes(q)) ||
+          (item.purpose && item.purpose.toLowerCase().includes(q)) ||
+          item.url.toLowerCase().includes(q);
+        return matchesCat && matchesQuery;
+      });
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('cardsGrid');
+      const filtered = getFilteredLinks();
+
+      const cardWord = filtered.length === 1 ? 'CARD' : 'CARDS';
+      document.getElementById('catalogCountBadge').textContent = `${filtered.length} ${cardWord}`;
+      updateCounters();
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <h3>NO ARCHIVE RECORDS FOUND</h3>
+            <p>Try clearing your search filter or filing a new link above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const iconBgPalette = ['#FFE600', '#FF2A85', '#1D4ED8', '#FF3B1D', '#00C853', '#7C3AED'];
+      const iconTextPalette = ['#111111', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#111111', '#FFFFFF'];
+
+      grid.innerHTML = filtered.map((item, idx) => {
+        const serialNum = String(idx + 1).padStart(2, '0');
+        const safeId = escapeHTML(item.id);
+        const safeTitle = escapeHTML(item.title || autoGenerateTitleFromUrl(item.url));
+        const safeCategory = VALID_CATEGORIES.includes(item.category) ? item.category : 'WORK';
+        const safeBadge = escapeHTML(item.badge || 'ARCHIVE');
+        const safeShort = escapeHTML(item.shortPurpose || item.purpose || 'ব্যক্তিগত ওয়েব আর্কাইভে সংরক্ষিত গুরুত্বপূর্ণ ওয়েবসাইট।');
+        const domain = escapeHTML(extractDomain(item.url));
+        const letter = escapeHTML(getInitialLetter(item.title, item.url));
+        const paletteIdx = idx % iconBgPalette.length;
+        const barcodeSerial = `LB-${serialNum}-${safeCategory.slice(0, 3)}`;
+
+        return `
+          <article class="link-card" data-cat="${safeCategory}" id="dom-${safeId}">
+            <div class="card-watermark-num" aria-hidden="true">${serialNum}</div>
+
+            <div class="card-top-meta">
+              <span class="serial-no">NO. ${serialNum} // ARCHIVE</span>
+              <div class="badge-group">
+                <span class="sub-badge">${safeBadge}</span>
+                <span class="cat-badge" data-cat="${safeCategory}">${safeCategory}</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="letter-icon-box" style="background:${iconBgPalette[paletteIdx]}; color:${iconTextPalette[paletteIdx]};">
+                ${letter}
+              </div>
+              <div class="card-info">
+                <h3 class="card-title" title="${safeTitle}">${safeTitle}</h3>
+                <p class="card-domain" title="${domain}">${domain}</p>
+              </div>
+            </div>
+
+            <div class="card-short-desc font-bangla" title="${safeShort}">
+              ${safeShort}
+            </div>
+
+            <div class="card-footer">
+              <div class="barcode-graphic" aria-hidden="true">
+                <div class="barcode-bars"></div>
+                <span class="barcode-code">${barcodeSerial}</span>
+              </div>
+
+              <div class="card-actions">
+                <button type="button" class="card-btn btn-details font-bangla" onclick="openDetailsModal('${safeId}')">
+                  বিস্তারিত
+                </button>
+                <button type="button" class="card-btn btn-open" onclick="triggerShutterAndOpen('${safeId}')">
+                  OPEN ↗
+                </button>
+                <button type="button" class="card-btn btn-edit" onclick="openEditModal('${safeId}')" title="Edit Link">
+                  EDIT
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // --------------------------------------------------------------------------
+    // 4. DETAILS DOSSIER MODAL ("বিস্তারিত" CLICK)
+    // --------------------------------------------------------------------------
+    function openDetailsModal(cardId) {
+      const target = linksData.find(item => item.id === cardId);
+      if (!target) return;
+
+      const safeId = escapeHTML(target.id);
+      const safeTitle = escapeHTML(target.title || autoGenerateTitleFromUrl(target.url));
+      const safeUrl = escapeHTML(target.url);
+      const safeCategory = escapeHTML(target.category || 'WORK');
+      const safeBadge = escapeHTML(target.badge || 'WEB TOOL');
+      const safeShort = escapeHTML(target.shortPurpose || 'সরাসরি ব্যবহারের উপযোগী ওয়েব টুল।');
+      const safePurpose = escapeHTML(target.purpose || target.shortPurpose || 'এই ওয়েবসাইটটি আপনার ব্যক্তিগত আর্কাইভে সংরক্ষিত রয়েছে। নিচে OPEN বাটনে ক্লিক করে সরাসরি সাইটটি ভিজিট করতে পারেন।');
+      const step1 = escapeHTML((target.steps && target.steps[0]) || 'সাইটে প্রবেশ করুন');
+      const step2 = escapeHTML((target.steps && target.steps[1]) || 'প্রয়োজনীয় অপশন বা ফাইল দিন');
+      const step3 = escapeHTML((target.steps && target.steps[2]) || 'ফলাফল বা আউটপুট নিন');
+      const safeTip = escapeHTML(target.tip || 'দ্রুত কাজের জন্য সাইটটি আপনার আর্কাইভে সংরক্ষিত রয়েছে।');
+
+      const content = document.getElementById('detailsModalContent');
+      content.innerHTML = `
+        <div class="modal-header">
+          <div>
+            <span style="font-size:0.7rem; font-weight:700; background:var(--yellow); color:#111; padding:2px 8px; border:2px solid var(--ink);">
+              ${safeCategory} • ${safeBadge}
+            </span>
+            <h3 style="margin-top:6px;">${safeTitle}</h3>
+            <p style="font-size:0.74rem; color:var(--ink-muted); font-weight:700; word-break:break-all;">${safeUrl}</p>
+          </div>
+          <button type="button" class="card-btn btn-del" onclick="closeDetailsModal()">✕</button>
+        </div>
+
+        <div class="dossier-box">
+          <span class="dossier-label">QUICK SUMMARY // মূল কাজ (১ লাইনে)</span>
+          <p class="font-bangla" style="font-size:0.95rem; font-weight:700; line-height:1.5;">${safeShort}</p>
+        </div>
+
+        <div class="dossier-box" style="border-left: 8px solid var(--blue);">
+          <span class="dossier-label" style="color:var(--blue);">DETAILED GUIDE // বিস্তারিত কাজ ও ব্যবহার</span>
+          <p class="font-bangla" style="font-size:0.92rem; font-weight:600; line-height:1.65;">${safePurpose}</p>
+        </div>
+
+        <div style="margin-bottom:6px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">
+          WORKFLOW PIPELINE // কীভাবে কাজ করে (৩ ধাপ)
+        </div>
+        <div class="steps-grid">
+          <div class="step-item">
+            <span class="step-num">STEP 01 • INPUT</span>
+            <p class="font-bangla" style="font-size:0.84rem; font-weight:700;">${step1}</p>
+          </div>
+          <div class="step-item">
+            <span class="step-num" style="background:var(--pink); color:#fff;">STEP 02 • ACTION</span>
+            <p class="font-bangla" style="font-size:0.84rem; font-weight:700;">${step2}</p>
+          </div>
+          <div class="step-item">
+            <span class="step-num" style="background:var(--green); color:#111;">STEP 03 • OUTPUT</span>
+            <p class="font-bangla" style="font-size:0.84rem; font-weight:700;">${step3}</p>
+          </div>
+        </div>
+
+        <div class="pro-tip-box font-bangla">
+          <span style="font-family:'Space Mono',monospace; text-transform:uppercase; background:#111; color:var(--yellow); padding:1px 6px; font-size:0.7rem; margin-right:6px;">💡 PRO TIP</span>
+          ${safeTip}
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; border-top:3px solid var(--ink); padding-top:14px;">
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="neo-btn" onclick="copyLinkUrl('${safeUrl}')">📋 COPY URL</button>
+            <button type="button" class="neo-btn" onclick="closeDetailsModal(); openEditModal('${safeId}')">✏️ EDIT</button>
+          </div>
+          <button type="button" class="neo-btn btn-pink" onclick="closeDetailsModal(); triggerShutterAndOpen('${safeId}')">
+            OPEN WEBSITE (${safeTitle}) ↗
+          </button>
+        </div>
+      `;
+
+      document.getElementById('detailsModal').classList.add('open');
+    }
+
+    function closeDetailsModal() {
+      document.getElementById('detailsModal').classList.remove('open');
+    }
+
+    function copyLinkUrl(url) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('LINK COPIED TO CLIPBOARD');
+        });
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // 5. 0.8-SECOND FULL-SCREEN SHUTTER TRANSITION ON "OPEN"
+    // --------------------------------------------------------------------------
+    function triggerShutterAndOpen(cardId) {
+      const target = linksData.find(item => item.id === cardId);
+      if (!target) return;
+      const validUrl = normalizeAndValidateUrl(target.url);
+      if (!validUrl) {
+        showToast('INVALID URL BLOCKED');
+        return;
+      }
+
+      const overlay = document.getElementById('shutterOverlay');
+      const titleEl = document.getElementById('shutterTargetTitle');
+      const domainEl = document.getElementById('shutterTargetDomain');
+
+      titleEl.textContent = `OPENING ${target.title.toUpperCase()}`;
+      domainEl.textContent = `${extractDomain(validUrl).toUpperCase()} ↗`;
+
+      overlay.classList.add('active');
+
+      setTimeout(() => {
+        const newWin = window.open(validUrl, '_blank', 'noopener,noreferrer');
+        if (newWin) {
+          newWin.opener = null;
+        }
+      }, 420);
+
+      setTimeout(() => {
+        overlay.classList.remove('active');
+      }, 800);
+    }
+
+    // --------------------------------------------------------------------------
+    // 6. ADD, EDIT & DELETE OPERATIONS
+    // --------------------------------------------------------------------------
+    function handleNewEntry(event) {
+      event.preventDefault();
+      const urlInput = document.getElementById('inputUrl');
+      const titleInput = document.getElementById('inputTitle');
+      const folderSelect = document.getElementById('inputFolder');
+      const shortInput = document.getElementById('inputShort');
+      const purposeInput = document.getElementById('inputPurpose');
+
+      const validUrl = normalizeAndValidateUrl(urlInput.value);
+      if (!validUrl) {
+        showToast('ERROR: ENTER VALID HTTP/HTTPS URL');
+        return;
+      }
+
+      const rawTitle = titleInput.value.trim();
+      const finalTitle = rawTitle ? rawTitle : autoGenerateTitleFromUrl(validUrl);
+      const validCat = VALID_CATEGORIES.includes(folderSelect.value)
+        ? folderSelect.value
+        : 'WORK';
+
+      const shortVal = shortInput.value.trim() || `${finalTitle} — ব্যক্তিগত আর্কাইভে সংরক্ষিত ওয়েবসাইট।`;
+      const purposeVal = purposeInput.value.trim() || shortVal;
+
+      const newCard = {
+        id: 'card-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        title: finalTitle,
+        url: validUrl,
+        category: validCat,
+        badge: 'Custom Link',
+        shortPurpose: shortVal,
+        purpose: purposeVal,
+        steps: ['সাইটে প্রবেশ করুন', 'প্রয়োজনীয় অপশন বা ফাইল দিন', 'আউটপুট ডাউনলোড করুন'],
+        tip: 'দ্রুত অ্যাক্সেসের জন্য সাইটটি আর্কাইভে সংরক্ষিত রয়েছে।',
+        createdAt: Date.now()
+      };
+
+      linksData.unshift(newCard);
+      saveArchive();
+      renderCatalog();
+
+      urlInput.value = '';
+      titleInput.value = '';
+      shortInput.value = '';
+      purposeInput.value = '';
+      showToast(`FILED "${finalTitle.toUpperCase()}" IN ${validCat}`);
+    }
+
+    function openEditModal(cardId) {
+      const target = linksData.find(item => item.id === cardId);
+      if (!target) return;
+
+      document.getElementById('editCardId').value = target.id;
+      document.getElementById('editUrl').value = target.url;
+      document.getElementById('editTitle').value = target.title;
+      document.getElementById('editFolder').value = VALID_CATEGORIES.includes(target.category) ? target.category : 'WORK';
+      document.getElementById('editBadge').value = target.badge || '';
+      document.getElementById('editShort').value = target.shortPurpose || '';
+      document.getElementById('editPurpose').value = target.purpose || '';
+      document.getElementById('editTip').value = target.tip || '';
+
+      document.getElementById('editModal').classList.add('open');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('open');
+    }
+
+    function handleBackdropClick(event) {
+      if (event.target.id === 'editModal') {
+        closeEditModal();
+      }
+      if (event.target.id === 'detailsModal') {
+        closeDetailsModal();
+      }
+    }
+
+    function saveEditedCard(event) {
+      event.preventDefault();
+      const id = document.getElementById('editCardId').value;
+      const rawUrl = document.getElementById('editUrl').value;
+      const rawTitle = document.getElementById('editTitle').value.trim();
+      const folder = document.getElementById('editFolder').value;
+      const badge = document.getElementById('editBadge').value.trim();
+      const shortPurpose = document.getElementById('editShort').value.trim();
+      const purpose = document.getElementById('editPurpose').value.trim();
+      const tip = document.getElementById('editTip').value.trim();
+
+      const validUrl = normalizeAndValidateUrl(rawUrl);
+      if (!validUrl) {
+        showToast('INVALID HTTP/HTTPS URL');
+        return;
+      }
+
+      const idx = linksData.findIndex(item => item.id === id);
+      if (idx === -1) return;
+
+      linksData[idx].url = validUrl;
+      linksData[idx].title = rawTitle ? rawTitle : autoGenerateTitleFromUrl(validUrl);
+      linksData[idx].category = VALID_CATEGORIES.includes(folder) ? folder : 'WORK';
+      linksData[idx].badge = badge || 'Web Tool';
+      linksData[idx].shortPurpose = shortPurpose || linksData[idx].shortPurpose;
+      linksData[idx].purpose = purpose || linksData[idx].purpose;
+      linksData[idx].tip = tip || linksData[idx].tip;
+
+      saveArchive();
+      renderCatalog();
+      closeEditModal();
+      showToast('ARCHIVE RECORD UPDATED');
+    }
+
+    // --------------------------------------------------------------------------
+    // 7. SEARCH, FILTER, NIGHT MODE & JSON EXPORT/IMPORT
+    // --------------------------------------------------------------------------
+    function handleSearchInput() {
+      const input = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('searchClearBtn');
+      searchQuery = input.value;
+      clearBtn.style.display = searchQuery.length > 0 ? 'flex' : 'none';
+      renderCatalog();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      searchQuery = '';
+      document.getElementById('searchClearBtn').style.display = 'none';
+      renderCatalog();
+      input.focus();
+    }
+
+    function setCategoryFilter(category) {
+      activeCategory = category;
+      document.querySelectorAll('.cat-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-cat') === category);
+      });
+      renderCatalog();
+    }
+
+    function toggleNightMode() {
+      document.body.classList.toggle('night-mode');
+      const isNight = document.body.classList.contains('night-mode');
+      localStorage.setItem(THEME_KEY, isNight ? '1' : '0');
+      showToast(isNight ? 'NIGHT MODE ACTIVATED' : 'DAYLIGHT PAPER MODE');
+    }
+
+    function initTheme() {
+      if (localStorage.getItem(THEME_KEY) === '1') {
+        document.body.classList.add('night-mode');
+      }
+    }
+
+    function exportArchiveJSON() {
+      const payload = {
+        archive: 'LINKBOX VOL. 01 / MMXXVI',
+        exportedAt: new Date().toISOString(),
+        totalLinks: linksData.length,
+        links: linksData
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `linkbox-archive-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('EXPORTED ARCHIVE JSON');
+    }
+
+    function triggerImportFile() {
+      document.getElementById('importFileInput').click();
+    }
+
+    function importArchiveJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incoming = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.links) ? parsed.links : null);
+          if (!incoming) {
+            showToast('INVALID BACKUP JSON FORMAT');
+            return;
+          }
+
+          const sanitizedList = [];
+          incoming.forEach(item => {
+            if (!item || typeof item !== 'object') return;
+            const validUrl = normalizeAndValidateUrl(item.url);
+            if (!validUrl) return;
+            const cleanTitle = (typeof item.title === 'string' && item.title.trim())
+              ? item.title.trim().slice(0, 60)
+              : (typeof item.name === 'string' && item.name.trim() ? item.name.trim().slice(0, 60) : autoGenerateTitleFromUrl(validUrl));
+            const rawCat = (item.category || 'WORK').toUpperCase();
+            const cleanCat = VALID_CATEGORIES.includes(rawCat) ? rawCat : 'WORK';
+
+            sanitizedList.push({
+              id: item.id || ('card-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7)),
+              title: cleanTitle,
+              url: validUrl,
+              category: cleanCat,
+              badge: item.badge || 'Imported',
+              shortPurpose: item.shortPurpose || '',
+              purpose: item.purpose || '',
+              steps: Array.isArray(item.steps) ? item.steps : ['সাইটে প্রবেশ করুন', 'প্রয়োজনীয় অপশন দিন', 'আউটপুট ডাউনলোড করুন'],
+              tip: item.tip || '',
+              createdAt: Date.now()
+            });
+          });
+
+          if (sanitizedList.length === 0) {
+            showToast('NO VALID LINKS IN FILE');
+            return;
+          }
+
+          linksData = sanitizedList;
+          saveArchive();
+          renderCatalog();
+          showToast(`IMPORTED ${sanitizedList.length} LINKS`);
+        } catch {
+          showToast('FAILED TO PARSE JSON FILE');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    // --------------------------------------------------------------------------
+    // 8. TOAST NOTIFICATION
+    // --------------------------------------------------------------------------
+    let toastTimer = null;
+    function showToast(message) {
+      const box = document.getElementById('toastBox');
+      box.textContent = message;
+      box.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.classList.remove('show');
+      }, 2600);
+    }
+
+    // --------------------------------------------------------------------------
+    // 9. KEYBOARD SHORTCUTS & ANTI-COPY / DEVTOOLS PROTECTION
+    // --------------------------------------------------------------------------
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    document.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      // "/" Shortcut to focus Search Input
+      if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'SELECT') {
+        e.preventDefault();
+        document.getElementById('searchInput').focus();
+        return;
+      }
+
+      // Escape closes Modals
+      if (e.key === 'Escape') {
+        closeEditModal();
+        closeDetailsModal();
+      }
+
+      // Block F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S
+      const key = e.key.toUpperCase();
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (key === 'I' || key === 'J' || key === 'C')) ||
+        (e.ctrlKey && (key === 'U' || key === 'S')) ||
+        (e.metaKey && e.altKey && (key === 'I' || key === 'J' || key === 'U'))
+      ) {
+        e.preventDefault();
+        showToast('PROTECTED ARCHIVE MODE');
+        return false;
+      }
+    });
+
+    // Initialize Application
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadArchive();
+      renderCatalog();
+    });
+  </script>
+</body>
+</html>
